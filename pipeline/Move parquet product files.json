@@ -1,0 +1,160 @@
+{
+	"name": "Move parquet product files",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Metadata for file list",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "AllFiles",
+						"type": "DatasetReference",
+						"parameters": {
+							"folder": {
+								"value": "@pipeline().parameters.source_folder_prefix",
+								"type": "Expression"
+							},
+							"file_pattern": {
+								"value": "@pipeline().parameters.source_file_pattern",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "BinaryReadSettings"
+					}
+				}
+			},
+			{
+				"name": "ForEach File",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata for file list",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata for file list').output.childItems",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy Files to pipeline target folder",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "ParquetSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									}
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobStorageWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ParquetProductFiles",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": "sources",
+										"prefix": {
+											"value": "@pipeline().parameters.source_folder_prefix",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ParquetProductFiles",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": "sources",
+										"prefix": {
+											"value": "@concat(pipeline().parameters.target_folder_prefix, '/', substring(item().name, 7, 6))",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"source_folder_prefix": {
+				"type": "string",
+				"defaultValue": "OriginalFiles/Product"
+			},
+			"target_folder_prefix": {
+				"type": "string",
+				"defaultValue": "GoogleAnalytics/Product"
+			},
+			"source_file_pattern": {
+				"type": "string",
+				"defaultValue": "*.parquet"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-05-20T13:45:12Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

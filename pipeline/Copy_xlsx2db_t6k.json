@@ -1,0 +1,284 @@
+{
+	"name": "Copy_xlsx2db_t6k",
+	"properties": {
+		"description": "xlsx2db",
+		"activities": [
+			{
+				"name": "Copy_xlsx2db_t6k",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "sources/OriginalFiles/ForecastData.xlsx"
+					},
+					{
+						"name": "Destination",
+						"value": ".Azure Blob Storage file"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "upsert",
+						"upsertSettings": {
+							"useTempDB": true,
+							"keys": [
+								"ID"
+							]
+						},
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"validateDataConsistency": false,
+					"logSettings": {
+						"enableCopyActivityLog": true,
+						"copyActivityLogSettings": {
+							"logLevel": "Warning",
+							"enableReliableLogging": false
+						},
+						"logLocationSettings": {
+							"linkedServiceName": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							}
+						}
+					},
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ID",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "ID",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "dt",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "dt",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "pressure",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "pressure",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "humidity",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "humidity",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "dew_point",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "dew_point",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "wind_speed",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "wind_speed",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "clouds",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "clouds",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "pop",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "pop",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "uvi",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "uvi",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "temp_max",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "temp_max",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "temp_min",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "temp_min",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "rain_mm",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "rain_mm",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "snow_mm",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "snow_mm",
+									"type": "Double",
+									"physicalType": "float"
+								}
+							},
+							{
+								"source": {
+									"name": "prediction_date",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "prediction_date",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "forecast_made",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "forecast_made",
+									"type": "DateTime",
+									"physicalType": "date"
+								}
+							},
+							{
+								"source": {
+									"name": "SHOP",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "shop",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SourceDataset_t6k",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DestinationDataset_t6k",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2022-05-18T09:54:06Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

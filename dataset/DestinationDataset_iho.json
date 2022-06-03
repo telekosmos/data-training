@@ -1,0 +1,38 @@
+{
+	"name": "DestinationDataset_iho",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"DestContainer": {
+				"type": "string"
+			},
+			"DestPrefix": {
+				"type": "string"
+			},
+			"DestFile": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Forecast.json",
+				"folderPath": {
+					"value": "@dataset().DestPrefix",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().DestContainer",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

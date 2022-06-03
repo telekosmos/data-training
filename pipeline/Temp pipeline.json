@@ -1,0 +1,45 @@
+{
+	"name": "Temp pipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dfParquetJsonString_Try",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"source1": {
+								"Schema": "TTraining",
+								"Table": "TrafficTmp"
+							},
+							"sink1": {
+								"container": "sources",
+								"prefix": "Temp",
+								"filename": "traffic-unrolled.csv"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2022-06-02T08:59:46Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

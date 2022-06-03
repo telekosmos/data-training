@@ -1,0 +1,97 @@
+{
+	"name": "dfTransformMultiple",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "JsonSourcesContainer",
+						"type": "DatasetReference"
+					},
+					"name": "JsonFiles"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ParquetFolder",
+						"type": "DatasetReference"
+					},
+					"name": "ParquetSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FlattenRowsField"
+				},
+				{
+					"name": "CreateProperColumns"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ADFWebActivityResponseHeaders as ({Accept-Ranges} as string, {Alt-Svc} as string, {Cache-Control} as string, {Content-Type} as string, Date as string, Server as string, {Transfer-Encoding} as string, Vary as string, {X-Content-Type-Options} as string, {X-Frame-Options} as string, {X-XSS-Protection} as boolean),",
+				"          billingReference as (activityType as string, billableDuration as (duration as double, meterType as string, unit as string)[]),",
+				"          columnHeaders as (columnType as string, dataType as string, name as string)[],",
+				"          containsSampledData as boolean,",
+				"          durationInQueue as (integrationRuntimeQueue as boolean),",
+				"          effectiveIntegrationRuntime as string,",
+				"          executionDuration as boolean,",
+				"          id as string,",
+				"          itemsPerPage as short,",
+				"          kind as string,",
+				"          profileInfo as (accountId as integer, internalWebPropertyId as integer, profileId as integer, profileName as string, tableId as string, webPropertyId as string),",
+				"          query as (dimensions as string, {end-date} as date, ids as string, {max-results} as short, metrics as string[], {start-date} as date, {start-index} as boolean),",
+				"          rows as string[][],",
+				"          selfLink as string,",
+				"          totalResults as short,",
+				"          totalsForAllResults as ({ga:bounceRate} as double, {ga:newUsers} as short, {ga:pageviews} as integer, {ga:sessionDuration} as double, {ga:sessions} as short, {ga:transactionRevenue} as double, {ga:transactions} as short, {ga:users} as short)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     rowUrlColumn: 'source_filename',",
+				"     documentForm: 'arrayOfDocuments',",
+				"     wildcardPaths:['OriginalFiles/Events/Events*.json']) ~> JsonFiles",
+				"JsonFiles foldDown(unroll(rows),",
+				"     mapColumn(",
+				"          id,",
+				"          rows,",
+				"          source_filename",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> FlattenRowsField",
+				"FlattenRowsField derive(col1_date = rows[1],",
+				"          col2_device_category = rows[2],",
+				"          col3_channel_grouping = rows[3],",
+				"          col4_event_category = rows[4],",
+				"          col5_event_action = rows[5],",
+				"          col6_users = rows[6],",
+				"          col7_newusers = rows[7],",
+				"          col8_sessions = rows[8],",
+				"          col9_pageviews = rows[9],",
+				"          target_folder = concat('StagingEvents/', split(split(source_filename, '/')[4], '.')[1])) ~> CreateProperColumns",
+				"CreateProperColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     rowFolderUrlColumn:'target_folder',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          id,",
+				"          col1_date,",
+				"          col2_device_category,",
+				"          col3_channel_grouping,",
+				"          col4_event_category,",
+				"          col5_event_action,",
+				"          col6_users,",
+				"          col7_newusers,",
+				"          col8_sessions,",
+				"          col9_pageviews,",
+				"          target_folder",
+				"     )) ~> ParquetSink"
+			]
+		}
+	}
+}

@@ -1,0 +1,272 @@
+{
+	"name": "xlsx2db",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy_xh6",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "sources/OriginalFiles/ForecastData.xlsx"
+					},
+					{
+						"name": "Destination",
+						"value": "."
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "upsert",
+						"upsertSettings": {
+							"useTempDB": true,
+							"keys": [
+								"ID"
+							]
+						},
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"logSettings": {
+						"enableCopyActivityLog": true,
+						"copyActivityLogSettings": {
+							"logLevel": "Warning",
+							"enableReliableLogging": false
+						},
+						"logLocationSettings": {
+							"linkedServiceName": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							}
+						}
+					},
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ID",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ID"
+								}
+							},
+							{
+								"source": {
+									"name": "dt",
+									"type": "String"
+								},
+								"sink": {
+									"name": "dt"
+								}
+							},
+							{
+								"source": {
+									"name": "pressure",
+									"type": "String"
+								},
+								"sink": {
+									"name": "pressure"
+								}
+							},
+							{
+								"source": {
+									"name": "humidity",
+									"type": "String"
+								},
+								"sink": {
+									"name": "humidity"
+								}
+							},
+							{
+								"source": {
+									"name": "dew_point",
+									"type": "String"
+								},
+								"sink": {
+									"name": "dew_point"
+								}
+							},
+							{
+								"source": {
+									"name": "wind_speed",
+									"type": "String"
+								},
+								"sink": {
+									"name": "wind_speed"
+								}
+							},
+							{
+								"source": {
+									"name": "clouds",
+									"type": "String"
+								},
+								"sink": {
+									"name": "clouds"
+								}
+							},
+							{
+								"source": {
+									"name": "pop",
+									"type": "String"
+								},
+								"sink": {
+									"name": "pop"
+								}
+							},
+							{
+								"source": {
+									"name": "uvi",
+									"type": "String"
+								},
+								"sink": {
+									"name": "uvi"
+								}
+							},
+							{
+								"source": {
+									"name": "temp_max",
+									"type": "String"
+								},
+								"sink": {
+									"name": "temp_max"
+								}
+							},
+							{
+								"source": {
+									"name": "temp_min",
+									"type": "String"
+								},
+								"sink": {
+									"name": "temp_min"
+								}
+							},
+							{
+								"source": {
+									"name": "rain_mm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "rain_mm"
+								}
+							},
+							{
+								"source": {
+									"name": "snow_mm",
+									"type": "String"
+								},
+								"sink": {
+									"name": "snow_mm"
+								}
+							},
+							{
+								"source": {
+									"name": "prediction_date",
+									"type": "String"
+								},
+								"sink": {
+									"name": "prediction_date"
+								}
+							},
+							{
+								"source": {
+									"name": "forecast_made",
+									"type": "String"
+								},
+								"sink": {
+									"name": "forecast_made"
+								}
+							},
+							{
+								"source": {
+									"name": "SHOP",
+									"type": "String"
+								},
+								"sink": {
+									"name": "shop"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SourceDataset_xh6",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": {
+								"value": "@pipeline().parameters.SourceContainer",
+								"type": "Expression"
+							},
+							"Prefix": {
+								"value": "@pipeline().parameters.SourcePrefix",
+								"type": "Expression"
+							},
+							"Filename": {
+								"value": "@pipeline().parameters.SourceFilename",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DestinationTrainingDB",
+						"type": "DatasetReference",
+						"parameters": {
+							"SchemaName": {
+								"value": "@pipeline().parameters.SchemaName",
+								"type": "Expression"
+							},
+							"TableName": {
+								"value": "@pipeline().parameters.TableName",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"SourceContainer": {
+				"type": "string"
+			},
+			"SourcePrefix": {
+				"type": "string",
+				"defaultValue": "OriginalFiles"
+			},
+			"SourceFilename": {
+				"type": "string",
+				"defaultValue": "ForecastData.xlsx"
+			},
+			"SchemaName": {
+				"type": "string"
+			},
+			"TableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-05-18T14:31:50Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,100 @@
+{
+	"name": "dfFillDimCountry",
+	"properties": {
+		"description": "Dim table Incremental load",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTableAddress",
+						"type": "DatasetReference"
+					},
+					"name": "sourceAddress"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sourceDimCountry"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "leftJoinOnCountry"
+				},
+				{
+					"name": "filterCountryNULL"
+				},
+				{
+					"name": "aggCountry"
+				},
+				{
+					"name": "selectJustCountry"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     schema as string",
+				"}",
+				"source(output(",
+				"          AddressID as integer,",
+				"          AddressLine1 as string,",
+				"          AddressLine2 as string,",
+				"          City as string,",
+				"          StateProvince as string,",
+				"          CountryRegion as string,",
+				"          PostalCode as string,",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourceAddress",
+				"source(output(",
+				"          id as integer,",
+				"          country as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourceDimCountry",
+				"sourceAddress, sourceDimCountry join(CountryRegion == country,",
+				"     joinType:'left',",
+				"     broadcast: 'auto')~> leftJoinOnCountry",
+				"leftJoinOnCountry filter(isNull(country)) ~> filterCountryNULL",
+				"filterCountryNULL aggregate(groupBy(CountryRegion),",
+				"     counter = count()) ~> aggCountry",
+				"aggCountry select(mapColumn(",
+				"          CountryRegion",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectJustCountry",
+				"selectJustCountry sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          country = CountryRegion",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

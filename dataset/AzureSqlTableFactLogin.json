@@ -1,0 +1,45 @@
+{
+	"name": "AzureSqlTableFactLogin",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlDatabaseTraining1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "user",
+				"type": "varchar"
+			},
+			{
+				"name": "timestamp",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "dateid",
+				"type": "varchar"
+			},
+			{
+				"name": "timeid",
+				"type": "varchar"
+			},
+			{
+				"name": "update_date",
+				"type": "date"
+			}
+		],
+		"typeProperties": {
+			"schema": "TTraining",
+			"table": "FactLogin"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

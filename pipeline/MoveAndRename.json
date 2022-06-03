@@ -1,0 +1,119 @@
+{
+	"name": "MoveAndRename",
+	"properties": {
+		"description": "ForecastData.xlsx -> targets/Forecasts/yyyyMM/ForecastYYYYMMdd.parquet",
+		"activities": [
+			{
+				"name": "Get ForecastData Metadata",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "SourceDataset_2d7",
+						"type": "DatasetReference",
+						"parameters": {
+							"Filename": "ForecastData.xlsx",
+							"Container": "sources",
+							"Prefix": "OriginalFiles"
+						}
+					},
+					"fieldList": [
+						"lastModified"
+					],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			},
+			{
+				"name": "Copy to Forecast -source timestamp",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Get ForecastData Metadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SourceDataset_2d7",
+						"type": "DatasetReference",
+						"parameters": {
+							"Filename": "ForecastData.xlsx",
+							"Container": "sources",
+							"Prefix": "OriginalFiles"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ForecastByDate",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "targets",
+							"Prefix": {
+								"value": "@concat('Forecasts/', substring(activity('Get ForecastData Metadata').output.lastModified, 0, 4), '/', substring(activity('Get ForecastData Metadata').output.lastModified, 5, 2))",
+								"type": "Expression"
+							},
+							"Filename": {
+								"value": "@concat('DaForecast', substring(activity('Get ForecastData Metadata').output.lastModified, 0, 4), substring(activity('Get ForecastData Metadata').output.lastModified, 5, 2), substring(activity('Get ForecastData Metadata').output.lastModified, 8, 2), '.parquet')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2022-05-19T16:23:41Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

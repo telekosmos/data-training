@@ -1,0 +1,13 @@
+{
+	"name": "SourceDataset_7wj",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "RestUserRequest",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

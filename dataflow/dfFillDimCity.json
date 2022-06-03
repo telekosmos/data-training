@@ -1,0 +1,100 @@
+{
+	"name": "dfFillDimCity",
+	"properties": {
+		"description": "Dim table Incremental load",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTableAddress",
+						"type": "DatasetReference"
+					},
+					"name": "sourceAddress"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sourceDimCity"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "leftJoinOnCity"
+				},
+				{
+					"name": "filterCityNULL"
+				},
+				{
+					"name": "aggCity"
+				},
+				{
+					"name": "selectJustCity"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     schema as string",
+				"}",
+				"source(output(",
+				"          AddressID as integer,",
+				"          AddressLine1 as string,",
+				"          AddressLine2 as string,",
+				"          City as string,",
+				"          StateProvince as string,",
+				"          CountryRegion as string,",
+				"          PostalCode as string,",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourceAddress",
+				"source(output(",
+				"          id as integer,",
+				"          city as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourceDimCity",
+				"sourceAddress, sourceDimCity join(sourceAddress@City == sourceDimCity@city,",
+				"     joinType:'left',",
+				"     broadcast: 'auto')~> leftJoinOnCity",
+				"leftJoinOnCity filter(isNull(sourceDimCity@city)) ~> filterCityNULL",
+				"filterCityNULL aggregate(groupBy(sourceAddress@City),",
+				"     counter = count()) ~> aggCity",
+				"aggCity select(mapColumn(",
+				"          City",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectJustCity",
+				"selectJustCity sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          city = City",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"name": "telekosmos",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "e36fe71c-1593-43e1-8d53-ba20c25bcce2",
+		"tenantId": "24adaeaa-5002-4f6e-aa57-b66c036ba791"
+	}
+}

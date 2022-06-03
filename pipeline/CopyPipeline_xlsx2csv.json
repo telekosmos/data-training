@@ -1,0 +1,135 @@
+{
+	"name": "CopyPipeline_xlsx2csv",
+	"properties": {
+		"description": "xlxs2csv",
+		"activities": [
+			{
+				"name": "Copy_xlsx2csv",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "sources/OriginalFiles/ForecastData.xlsx"
+					},
+					{
+						"name": "Destination",
+						"value": "targets/csv/Forecast.csv"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"validateDataConsistency": false,
+					"logSettings": {
+						"enableCopyActivityLog": true,
+						"copyActivityLogSettings": {
+							"logLevel": "Warning",
+							"enableReliableLogging": false
+						},
+						"logLocationSettings": {
+							"linkedServiceName": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							}
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SourceDataset_2d7",
+						"type": "DatasetReference",
+						"parameters": {
+							"Filename": {
+								"value": "@pipeline().parameters.SourceFilename",
+								"type": "Expression"
+							},
+							"Container": {
+								"value": "@pipeline().parameters.SourceContainer",
+								"type": "Expression"
+							},
+							"Prefix": {
+								"value": "@pipeline().parameters.SourcePrefix",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DestinationDataset_2d7",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": {
+								"value": "@pipeline().parameters.TargetContainer",
+								"type": "Expression"
+							},
+							"Prefix": {
+								"value": "@pipeline().parameters.TargetPrefix",
+								"type": "Expression"
+							},
+							"Filename": {
+								"value": "@pipeline().parameters.TargetFilename",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"SourceContainer": {
+				"type": "string",
+				"defaultValue": "sources"
+			},
+			"TargetContainer": {
+				"type": "string",
+				"defaultValue": "targets"
+			},
+			"SourcePrefix": {
+				"type": "string",
+				"defaultValue": "OriginalFiles"
+			},
+			"TargetPrefix": {
+				"type": "string",
+				"defaultValue": "csv"
+			},
+			"SourceFilename": {
+				"type": "string",
+				"defaultValue": "ForecastData.xlsx"
+			},
+			"TargetFilename": {
+				"type": "string",
+				"defaultValue": "DaForecast"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-05-18T12:49:05Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

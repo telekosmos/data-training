@@ -1,0 +1,103 @@
+{
+	"name": "dfJsonArray2Parquet",
+	"properties": {
+		"description": "Pick a nested array and each element in the outer array (which is another one) gets converted to a row... manually.\n\nParams:\njsonFilename\t\n'Events*.json'\n\nparquetTargetFolder\t\n'StagingEvents'\n\nDataset parameters\nsource1\n\nfolder\t\nOriginalFiles/Events\n\nfilePattern\t\nEvents20211101.json\n\nsinkParquet\ncontainer\t\nsources\n\nfolder\t\nStagingEvents\n\nfilename\t\ncrap.parquet\n",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "JsonFiles",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ParquetGeneric",
+						"type": "DatasetReference"
+					},
+					"name": "sinkParquet"
+				}
+			],
+			"transformations": [
+				{
+					"name": "flattenNestedArray"
+				},
+				{
+					"name": "derivedTableColumns"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     jsonFilename as string,",
+				"     parquetTargetFolder as string",
+				"}",
+				"source(output(",
+				"          kind as string,",
+				"          id as string,",
+				"          query as ({start-date} as string, {end-date} as string, ids as string, dimensions as string, metrics as string[], {start-index} as integer, {max-results} as integer),",
+				"          itemsPerPage as integer,",
+				"          totalResults as integer,",
+				"          selfLink as string,",
+				"          profileInfo as (profileId as string, accountId as string, webPropertyId as string, internalWebPropertyId as string, profileName as string, tableId as string),",
+				"          containsSampledData as boolean,",
+				"          columnHeaders as (name as string, columnType as string, dataType as string)[],",
+				"          totalsForAllResults as ({ga:users} as string, {ga:newUsers} as string, {ga:sessions} as string, {ga:pageviews} as string, {ga:sessionDuration} as string, {ga:bounceRate} as string, {ga:transactions} as string, {ga:transactionRevenue} as string),",
+				"          rows as string[][],",
+				"          ADFWebActivityResponseHeaders as (Vary as string, {X-XSS-Protection} as string, {X-Frame-Options} as string, {X-Content-Type-Options} as string, {Alt-Svc} as string, {Transfer-Encoding} as string, {Accept-Ranges} as string, {Cache-Control} as string, Date as string, Server as string, {Content-Type} as string),",
+				"          effectiveIntegrationRuntime as string,",
+				"          executionDuration as integer,",
+				"          durationInQueue as (integrationRuntimeQueue as integer),",
+				"          billingReference as (activityType as string, billableDuration as (meterType as string, duration as double, unit as string)[])",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'arrayOfDocuments') ~> source1",
+				"source1 foldDown(unroll(rows),",
+				"     mapColumn(",
+				"          id,",
+				"          rows",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flattenNestedArray",
+				"flattenNestedArray derive(col1_date = rows[1],",
+				"          col2_device_category = rows[2],",
+				"          col3_channel_grouping = rows[3],",
+				"          col4_event_category = rows[4],",
+				"          col5_event_action = rows[5],",
+				"          col6_users = rows[6],",
+				"          col7_newusers = rows[7],",
+				"          col8_sessions = rows[8],",
+				"          col9_pageviews = rows[9],",
+				"          col10_session_duration = rows[10],",
+				"          col11_bounce_rate = rows[11],",
+				"          col12_transactions = rows[12],",
+				"          col13_transaction_revenue = rows[13]) ~> derivedTableColumns",
+				"derivedTableColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          date = col1_date,",
+				"          device_category = col2_device_category,",
+				"          channel_grouping = col3_channel_grouping,",
+				"          event_category = col4_event_category,",
+				"          event_action = col5_event_action,",
+				"          users = col6_users,",
+				"          newusers = col7_newusers,",
+				"          sessions = col8_sessions,",
+				"          pageviews = col9_pageviews,",
+				"          session_duration = col10_session_duration,",
+				"          bounce_rate = col11_bounce_rate,",
+				"          transactions = col12_transactions,",
+				"          transaction_revenue = col13_transaction_revenue",
+				"     )) ~> sinkParquet"
+			]
+		}
+	}
+}

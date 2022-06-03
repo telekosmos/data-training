@@ -1,0 +1,51 @@
+{
+	"name": "Ex13 Iterating over entities",
+	"properties": {
+		"description": "Call pipeline to move parquet files by entities by iterating over parameter",
+		"activities": [
+			{
+				"name": "LoopOverEntities",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@split(pipeline().parameters.entities, ',')",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Move parquet files",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "Move parquet files by entity",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"entity": {
+										"value": "@item()",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"entities": {
+				"type": "string",
+				"defaultValue": "Events,Product,Traffic"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-05-23T07:37:10Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

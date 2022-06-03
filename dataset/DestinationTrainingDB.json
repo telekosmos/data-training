@@ -1,0 +1,92 @@
+{
+	"name": "DestinationTrainingDB",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlDatabaseTraining1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"SchemaName": {
+				"type": "string"
+			},
+			"TableName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"structure": [
+			{
+				"name": "ID",
+				"type": "Int32"
+			},
+			{
+				"name": "dt",
+				"type": "Int32"
+			},
+			{
+				"name": "pressure",
+				"type": "Int32"
+			},
+			{
+				"name": "humidity",
+				"type": "Int32"
+			},
+			{
+				"name": "dew_point",
+				"type": "Double"
+			},
+			{
+				"name": "wind_speed",
+				"type": "Double"
+			},
+			{
+				"name": "clouds",
+				"type": "Int32"
+			},
+			{
+				"name": "pop",
+				"type": "Double"
+			},
+			{
+				"name": "uvi",
+				"type": "Double"
+			},
+			{
+				"name": "temp_max",
+				"type": "Double"
+			},
+			{
+				"name": "temp_min",
+				"type": "Double"
+			},
+			{
+				"name": "rain_mm",
+				"type": "Double"
+			},
+			{
+				"name": "snow_mm",
+				"type": "Double"
+			},
+			{
+				"name": "prediction_date",
+				"type": "Date"
+			},
+			{
+				"name": "forecast_made",
+				"type": "Date"
+			},
+			{
+				"name": "shop",
+				"type": "String"
+			}
+		],
+		"typeProperties": {
+			"tableName": {
+				"value": "@concat(dataset().SchemaName, '.', dataset().TableName)",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

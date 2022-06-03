@@ -1,0 +1,280 @@
+{
+	"name": "CopyPipeline_xlsx2json",
+	"properties": {
+		"description": "xlxs2json",
+		"activities": [
+			{
+				"name": "Copy_iho",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "sources/OriginalFiles/ForecastData.xlsx"
+					},
+					{
+						"name": "Destination",
+						"value": "targets/json/Forecast.json"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings",
+							"filePattern": "arrayOfObjects"
+						}
+					},
+					"enableStaging": false,
+					"validateDataConsistency": false,
+					"logSettings": {
+						"enableCopyActivityLog": true,
+						"copyActivityLogSettings": {
+							"logLevel": "Warning",
+							"enableReliableLogging": false
+						},
+						"logLocationSettings": {
+							"linkedServiceName": {
+								"referenceName": "AzureBlobStorage1",
+								"type": "LinkedServiceReference"
+							}
+						}
+					},
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "ID",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['ID']"
+								}
+							},
+							{
+								"source": {
+									"name": "dt",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['dt']"
+								}
+							},
+							{
+								"source": {
+									"name": "pressure",
+									"type": "Int16"
+								},
+								"sink": {
+									"path": "$['pressure']"
+								}
+							},
+							{
+								"source": {
+									"name": "humidity",
+									"type": "Int16"
+								},
+								"sink": {
+									"path": "$['humidity']"
+								}
+							},
+							{
+								"source": {
+									"name": "dew_point",
+									"type": "Double"
+								},
+								"sink": {
+									"path": "$['dew_point']"
+								}
+							},
+							{
+								"source": {
+									"name": "wind_speed",
+									"type": "Double"
+								},
+								"sink": {
+									"path": "$['wind_speed']"
+								}
+							},
+							{
+								"source": {
+									"name": "clouds",
+									"type": "Int16"
+								},
+								"sink": {
+									"path": "$['clouds']"
+								}
+							},
+							{
+								"source": {
+									"name": "pop",
+									"type": "Double"
+								},
+								"sink": {
+									"path": "$['pop']"
+								}
+							},
+							{
+								"source": {
+									"name": "uvi",
+									"type": "Double"
+								},
+								"sink": {
+									"path": "$['uvi']"
+								}
+							},
+							{
+								"source": {
+									"name": "temp_max",
+									"type": "Double"
+								},
+								"sink": {
+									"path": "$['temp_max']"
+								}
+							},
+							{
+								"source": {
+									"name": "temp_min",
+									"type": "Double"
+								},
+								"sink": {
+									"path": "$['temp_min']"
+								}
+							},
+							{
+								"source": {
+									"name": "rain_mm",
+									"type": "Double"
+								},
+								"sink": {
+									"path": "$['rain_mm']"
+								}
+							},
+							{
+								"source": {
+									"name": "snow_mm",
+									"type": "Double"
+								},
+								"sink": {
+									"path": "$['snow_mm']"
+								}
+							},
+							{
+								"source": {
+									"name": "prediction_date",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['prediction_date']"
+								}
+							},
+							{
+								"source": {
+									"name": "forecast_made",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['forecast_made']"
+								}
+							},
+							{
+								"source": {
+									"name": "SHOP",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['SHOP']"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SourceDataset_iho",
+						"type": "DatasetReference",
+						"parameters": {
+							"ContainerSource": {
+								"value": "@pipeline().parameters.SourceContainer",
+								"type": "Expression"
+							},
+							"PrefixSource": {
+								"value": "@pipeline().parameters.SourcePrefix",
+								"type": "Expression"
+							},
+							"FilenameSource": {
+								"value": "@pipeline().parameters.SourceFilename",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DestinationDataset_iho",
+						"type": "DatasetReference",
+						"parameters": {
+							"DestContainer": {
+								"value": "@pipeline().parameters.TargetContainer",
+								"type": "Expression"
+							},
+							"DestPrefix": {
+								"value": "@pipeline().parameters.TargetPrefix",
+								"type": "Expression"
+							},
+							"DestFile": {
+								"value": "@pipeline().parameters.TargetFilename",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"SourceContainer": {
+				"type": "string"
+			},
+			"SourcePrefix": {
+				"type": "string",
+				"defaultValue": "OriginalFiles"
+			},
+			"SourceFilename": {
+				"type": "string",
+				"defaultValue": "ForecastData.xlsx"
+			},
+			"TargetContainer": {
+				"type": "string",
+				"defaultValue": "targets"
+			},
+			"TargetPrefix": {
+				"type": "string"
+			},
+			"TargetFilename": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-05-18T13:58:23Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

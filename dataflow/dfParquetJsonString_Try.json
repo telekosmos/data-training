@@ -1,0 +1,72 @@
+{
+	"name": "dfParquetJsonString_Try",
+	"properties": {
+		"description": "Try to come up with something to convert a nested json array as string into a database rows (one for each inner array)",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "GenericCsv",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "flatten1"
+				},
+				{
+					"name": "flatten2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          batch_id as integer,",
+				"          the_date as timestamp,",
+				"          rows_array as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source1 derive(rows_array_of_string = split(replace(substring(rows_array, 2, length(rows_array)-1), '],[', ']|['), '|')) ~> derivedColumn1",
+				"derivedColumn1 derive(nested_array = array(map(rows_array_of_string, split(replace(substring(#item, 3, length(#item)-4), '\",\"', '|'), '|')))) ~> derivedColumn2",
+				"derivedColumn2 foldDown(unroll(nested_array),",
+				"     mapColumn(",
+				"          batch_id,",
+				"          nested_array",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten1",
+				"flatten1 foldDown(unroll(nested_array),",
+				"     mapColumn(",
+				"          batch_id,",
+				"          nested_array_again = nested_array",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten2",
+				"flatten2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

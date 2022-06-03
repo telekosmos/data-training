@@ -1,0 +1,61 @@
+{
+	"name": "Ex13 Calling pipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute Move Traffic parquet files",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Move parquet files by entity",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Execute Move Product parquet files",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Move parquet files by entity",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"entity": "Product"
+					}
+				}
+			},
+			{
+				"name": "Execute Move Event parquet files",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Move parquet files by entity",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"entity": "Events"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"entities": {
+				"type": "string",
+				"defaultValue": "Events,Product,Traffic"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-05-25T15:18:11Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

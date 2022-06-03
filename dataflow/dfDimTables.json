@@ -1,0 +1,113 @@
+{
+	"name": "dfDimTables",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTableAddress",
+						"type": "DatasetReference"
+					},
+					"name": "sourceSalesAddres"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sinkDimState"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sinkDimCity"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sinkDimCountry"
+				}
+			],
+			"transformations": [
+				{
+					"name": "aggCountry"
+				},
+				{
+					"name": "aggCity"
+				},
+				{
+					"name": "aggState"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          AddressID as integer,",
+				"          AddressLine1 as string,",
+				"          AddressLine2 as string,",
+				"          City as string,",
+				"          StateProvince as string,",
+				"          CountryRegion as string,",
+				"          PostalCode as string,",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourceSalesAddres",
+				"sourceSalesAddres aggregate(groupBy(CountryRegion),",
+				"     counter = count()) ~> aggCountry",
+				"sourceSalesAddres aggregate(groupBy(City),",
+				"     counter = count()) ~> aggCity",
+				"sourceSalesAddres aggregate(groupBy(StateProvince),",
+				"     counter = count()) ~> aggState",
+				"aggState sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          state = StateProvince",
+				"     )) ~> sinkDimState",
+				"aggCity sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          city = City",
+				"     )) ~> sinkDimCity",
+				"aggCountry sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          country = CountryRegion",
+				"     )) ~> sinkDimCountry"
+			]
+		}
+	}
+}

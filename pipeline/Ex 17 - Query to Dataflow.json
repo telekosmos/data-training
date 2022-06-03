@@ -1,0 +1,82 @@
+{
+	"name": "Ex 17 - Query to Dataflow",
+	"properties": {
+		"description": "Query is:\nSELECT\nb.[SalesOrderID]\n,b.SalesOrderNumber\n,b.PurchaseOrderNumber ,Concat(Left(b.SalesOrderNumber,2),Left(b.PurchaseOrderNumber,2)) as PurchaseType ,b.ShipMethod\n,a.OrderQty\n,a.UnitPrice\n,a.OrderQty*a.UnitPrice as [TotalCost]\n,c.Title + ' ' + FirstName + ' ' + LastName as Customer\n,b.AccountNumber\n,SUBSTRING(AccountNumber,0,CHARINDEX('-',AccountNumber,0))as FirstPart ,SUBSTRING(AccountNumber,CHARINDEX('-',AccountNumber,0)+1,CHARINDEX('-',AccountNumber,CHARINDEX('- ',AccountNumber,0)+1)-(CHARINDEX('-',AccountNumber,0)+1)) as SecondPart ,RIGHT(AccountNumber,LEN(AccountNumber)-CHARINDEX('-',AccountNumber,CHARINDEX('- ',AccountNumber,0)+1)) as ThirdPart\n,CASE WHEN Phone like '%)%' THEN 'NOT LOCAL' ELSE 'LOCAL' END as PhoneLocal\n,CASE WHEN c.ModifiedDate<='20051201' THEN 'BeforeStart'\nWHEN c.ModifiedDate BETWEEN '20051202' AND '20061201'THEN 'JustStarted' WHEN c.ModifiedDate BETWEEN '20061202' AND '20070601'THEN 'OnGoingBusiness' WHEN c.ModifiedDate BETWEEN '20070602' AND '20080601'THEN 'EndOfBusiness' ELSE 'ErrorDate' END as DateAttribute\n,FORMAT(a.ModifiedDate,'yyyyMMdd') as DateId ,FORMAT(c.ModifiedDate,'HHmm') as TimeId FROM [SalesLT].[SalesOrderDetail] as a\nINNER JOIN [SalesLT].[SalesOrderHeader] as b ON a.[SalesOrderID]=b.[SalesOrderID]\nLEFT JOIN [SalesLT].[Customer] as c\nON c.CustomerID=b.CustomerID\nWHERE c.EmailAddress not like '%inda%'\n",
+		"activities": [
+			{
+				"name": "Dataflow from query",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "query2dataflow",
+						"type": "DataFlowReference",
+						"parameters": {
+							"sinkTableSchema": {
+								"value": "'@{pipeline().parameters.sinkSchema}'",
+								"type": "Expression"
+							},
+							"sinkTableName": {
+								"value": "'@{pipeline().parameters.sinkTable}'",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"salesOrderDetail": {
+								"Schema": "SalesLT",
+								"Table": "SalesOrderDetail"
+							},
+							"salesOrderHeader": {
+								"Schema": "SalesLT",
+								"Table": "SalesOrderHeader"
+							},
+							"customer": {
+								"Schema": "SalesLT",
+								"Table": "Customer"
+							},
+							"sink1": {
+								"Schema": {
+									"value": "@pipeline().parameters.sinkSchema",
+									"type": "Expression"
+								},
+								"Table": {
+									"value": "@pipeline().parameters.sinkTable",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"parameters": {
+			"sinkSchema": {
+				"type": "string",
+				"defaultValue": "TTraining"
+			},
+			"sinkTable": {
+				"type": "string",
+				"defaultValue": "Sales"
+			}
+		},
+		"folder": {
+			"name": "data flow pipes"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-05-27T10:38:34Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

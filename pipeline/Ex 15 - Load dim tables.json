@@ -1,0 +1,155 @@
+{
+	"name": "Ex 15 - Load dim tables",
+	"properties": {
+		"description": "Container pipeline to use load dim tables dataflows",
+		"activities": [
+			{
+				"name": "Load countries",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dfFillDimCountry",
+						"type": "DataFlowReference",
+						"parameters": {
+							"schema": {
+								"value": "@pipeline().parameters.targetSchema",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"sourceDimCountry": {
+								"Schema": {
+									"value": "@pipeline().parameters.targetSchema",
+									"type": "Expression"
+								},
+								"Table": "DimCountry"
+							},
+							"sink1": {
+								"Schema": {
+									"value": "@pipeline().parameters.targetSchema",
+									"type": "Expression"
+								},
+								"Table": "DimCountry"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Load states",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dfFillDimState",
+						"type": "DataFlowReference",
+						"parameters": {
+							"schema": {
+								"value": "'@{pipeline().parameters.targetSchema}'",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"sourceDimState": {
+								"Schema": {
+									"value": "@pipeline().parameters.targetSchema",
+									"type": "Expression"
+								},
+								"Table": "DimState"
+							},
+							"sink1": {
+								"Schema": {
+									"value": "@pipeline().parameters.targetSchema",
+									"type": "Expression"
+								},
+								"Table": "DimState"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "Load cities",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dfFillDimCity",
+						"type": "DataFlowReference",
+						"parameters": {
+							"schema": {
+								"value": "'@{pipeline().parameters.targetSchema}'",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"sourceDimCity": {
+								"Schema": {
+									"value": "@pipeline().parameters.targetSchema",
+									"type": "Expression"
+								},
+								"Table": "DimCity"
+							},
+							"sink1": {
+								"Schema": "@pipeline().parameters.targetSchema",
+								"Table": "DimCity"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"parameters": {
+			"targetSchema": {
+				"type": "string",
+				"defaultValue": "TTraining"
+			}
+		},
+		"folder": {
+			"name": "data flow pipes"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-05-26T13:45:10Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

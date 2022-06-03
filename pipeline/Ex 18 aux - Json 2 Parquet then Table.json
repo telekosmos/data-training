@@ -1,0 +1,80 @@
+{
+	"name": "Ex 18 aux - Json 2 Parquet then Table",
+	"properties": {
+		"activities": [
+			{
+				"name": "DF Json rows to Parquet",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dfJsonArray2Parquet",
+						"type": "DataFlowReference",
+						"parameters": {
+							"jsonFilename": {
+								"value": "'@{concat(pipeline().parameters.sourceFolder, '/', pipeline().parameters.sourceJsonFile)}'",
+								"type": "Expression"
+							},
+							"parquetTargetFolder": {
+								"value": "'@{pipeline().parameters.stagingFolder}'",
+								"type": "Expression"
+							}
+						},
+						"datasetParameters": {
+							"source1": {
+								"folder": {
+									"value": "@pipeline().parameters.sourceFolder",
+									"type": "Expression"
+								},
+								"filePattern": "*.json"
+							},
+							"sinkParquet": {
+								"container": "sources",
+								"folder": {
+									"value": "@pipeline().parameters.stagingFolder",
+									"type": "Expression"
+								},
+								"filename": "*"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"parameters": {
+			"sourceFolder": {
+				"type": "string",
+				"defaultValue": "OriginalFiles/Events"
+			},
+			"stagingFolder": {
+				"type": "string",
+				"defaultValue": "StagingEvents"
+			},
+			"sourceJsonFile": {
+				"type": "string"
+			},
+			"sinkTablename": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "data flow pipes"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-06-02T11:36:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,36 @@
+{
+	"name": "ParquetBackupFiles",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"prefix_dbschema": {
+				"type": "string"
+			},
+			"prefix_dbtable": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@concat('Table', formatDateTime(utcNow(), 'yyyyMMdd'), '.parquet')",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@concat('DatabaseBackup/', dataset().prefix_dbschema, '/', dataset().prefix_dbtable)",
+					"type": "Expression"
+				},
+				"container": "sources"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

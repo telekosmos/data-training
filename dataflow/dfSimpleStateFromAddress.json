@@ -1,0 +1,51 @@
+{
+	"name": "dfSimpleStateFromAddress",
+	"properties": {
+		"description": "Getting distinct state(s) based on query",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sourceAddressState"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          StateProvince as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select distinct StateProvince\\nfrom [SalesLT].[Address]',",
+				"     format: 'query') ~> sourceAddressState",
+				"sourceAddressState sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          state = StateProvince",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

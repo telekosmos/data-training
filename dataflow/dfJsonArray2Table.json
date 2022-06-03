@@ -1,0 +1,104 @@
+{
+	"name": "dfJsonArray2Table",
+	"properties": {
+		"description": "Pick a nested array and each element in the outer array (which is another one) gets converted to a row... manually",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "JsonFiles",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sinkTable"
+				}
+			],
+			"transformations": [
+				{
+					"name": "flattenNestedArray"
+				},
+				{
+					"name": "derivedTableColumns"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ADFWebActivityResponseHeaders as ({Accept-Ranges} as string, {Alt-Svc} as string, {Cache-Control} as string, {Content-Type} as string, Date as string, Server as string, {Transfer-Encoding} as string, Vary as string, {X-Content-Type-Options} as string, {X-Frame-Options} as string, {X-XSS-Protection} as boolean),",
+				"          billingReference as (activityType as string, billableDuration as (duration as double, meterType as string, unit as string)[]),",
+				"          columnHeaders as (columnType as string, dataType as string, name as string)[],",
+				"          containsSampledData as boolean,",
+				"          durationInQueue as (integrationRuntimeQueue as boolean),",
+				"          effectiveIntegrationRuntime as string,",
+				"          executionDuration as boolean,",
+				"          id as string,",
+				"          itemsPerPage as short,",
+				"          kind as string,",
+				"          profileInfo as (accountId as integer, internalWebPropertyId as integer, profileId as integer, profileName as string, tableId as string, webPropertyId as string),",
+				"          query as (dimensions as string, {end-date} as date, ids as string, {max-results} as short, metrics as string[], {start-date} as date, {start-index} as boolean),",
+				"          rows as string[][],",
+				"          selfLink as string,",
+				"          totalResults as short,",
+				"          totalsForAllResults as ({ga:bounceRate} as double, {ga:newUsers} as short, {ga:pageviews} as integer, {ga:sessionDuration} as double, {ga:sessions} as short, {ga:transactionRevenue} as double, {ga:transactions} as short, {ga:users} as short)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'arrayOfDocuments') ~> source1",
+				"source1 foldDown(unroll(rows),",
+				"     mapColumn(",
+				"          id,",
+				"          rows",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flattenNestedArray",
+				"flattenNestedArray derive(col1_date = rows[1],",
+				"          col2_device_category = rows[2],",
+				"          col3_channel_grouping = rows[3],",
+				"          col4_event_category = rows[4],",
+				"          col5_event_action = rows[5],",
+				"          col6_users = rows[6],",
+				"          col7_newusers = rows[7],",
+				"          col8_sessions = rows[8],",
+				"          col9_pageviews = rows[9],",
+				"          col10_session_duration = rows[10],",
+				"          col11_bounce_rate = rows[11],",
+				"          col12_transactions = rows[12],",
+				"          col13_transaction_revenue = rows[13]) ~> derivedTableColumns",
+				"derivedTableColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          date = col1_date,",
+				"          device_category = col2_device_category,",
+				"          channel_grouping = col3_channel_grouping,",
+				"          event_category = col4_event_category,",
+				"          event_action = col5_event_action,",
+				"          users = col6_users,",
+				"          newusers = col7_newusers,",
+				"          sessions = col8_sessions,",
+				"          pageviews = col9_pageviews,",
+				"          session_duration = col10_session_duration,",
+				"          bounce_rate = col11_bounce_rate,",
+				"          transactions = col12_transactions,",
+				"          transaction_revenue = col13_transaction_revenue",
+				"     )) ~> sinkTable"
+			]
+		}
+	}
+}

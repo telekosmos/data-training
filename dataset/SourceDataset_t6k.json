@@ -1,0 +1,88 @@
+{
+	"name": "SourceDataset_t6k",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Sheet1",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "ForecastData.xlsx",
+				"folderPath": "OriginalFiles",
+				"container": "sources"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "ID",
+				"type": "String"
+			},
+			{
+				"name": "dt",
+				"type": "String"
+			},
+			{
+				"name": "pressure",
+				"type": "String"
+			},
+			{
+				"name": "humidity",
+				"type": "String"
+			},
+			{
+				"name": "dew_point",
+				"type": "String"
+			},
+			{
+				"name": "wind_speed",
+				"type": "String"
+			},
+			{
+				"name": "clouds",
+				"type": "String"
+			},
+			{
+				"name": "pop",
+				"type": "String"
+			},
+			{
+				"name": "uvi",
+				"type": "String"
+			},
+			{
+				"name": "temp_max",
+				"type": "String"
+			},
+			{
+				"name": "temp_min",
+				"type": "String"
+			},
+			{
+				"name": "rain_mm",
+				"type": "String"
+			},
+			{
+				"name": "snow_mm",
+				"type": "String"
+			},
+			{
+				"name": "prediction_date",
+				"type": "String"
+			},
+			{
+				"name": "forecast_made",
+				"type": "String"
+			},
+			{
+				"name": "SHOP",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

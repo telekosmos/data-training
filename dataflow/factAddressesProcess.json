@@ -1,0 +1,218 @@
+{
+	"name": "factAddressesProcess",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "AddressTable"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "DimCountry"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "DimState"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "DimCity"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "SourceFactAddresses"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sink2Table"
+				}
+			],
+			"transformations": [
+				{
+					"name": "id2idcountry"
+				},
+				{
+					"name": "joinCountryIds"
+				},
+				{
+					"name": "id2idstate"
+				},
+				{
+					"name": "joinStateIds"
+				},
+				{
+					"name": "derivedColumnModifiedDate"
+				},
+				{
+					"name": "id2idcity"
+				},
+				{
+					"name": "joinCityIds"
+				},
+				{
+					"name": "removeColumns"
+				},
+				{
+					"name": "joinFactTable"
+				},
+				{
+					"name": "filterJoinNULL"
+				},
+				{
+					"name": "selectNewRows"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          AddressID as integer,",
+				"          AddressLine1 as string,",
+				"          AddressLine2 as string,",
+				"          City as string,",
+				"          StateProvince as string,",
+				"          CountryRegion as string,",
+				"          PostalCode as string,",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> AddressTable",
+				"source(output(",
+				"          id as integer,",
+				"          country as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> DimCountry",
+				"source(output(",
+				"          id as integer,",
+				"          state as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> DimState",
+				"source(output(",
+				"          id as integer,",
+				"          city as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> DimCity",
+				"source(output(",
+				"          AddressID as integer,",
+				"          AddressLine1 as string,",
+				"          AddressLine2 as string,",
+				"          id_city as integer,",
+				"          id_state as integer,",
+				"          id_country as integer,",
+				"          PostalCode as string,",
+				"          ModifiedDateId as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SourceFactAddresses",
+				"DimCountry select(mapColumn(",
+				"          id_country = id,",
+				"          country",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> id2idcountry",
+				"selectNewRows, id2idcountry join(CountryRegion == country,",
+				"     joinType:'inner',",
+				"     broadcast: 'auto')~> joinCountryIds",
+				"DimState select(mapColumn(",
+				"          id_state = id,",
+				"          state",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> id2idstate",
+				"joinCountryIds, id2idstate join(StateProvince == state,",
+				"     joinType:'inner',",
+				"     broadcast: 'auto')~> joinStateIds",
+				"joinCityIds derive(ModifiedDateId = toInteger(",
+				"    concat(",
+				"        toString(year(ModifiedDate)), ",
+				"        toString(month(ModifiedDate), '00'), ",
+				"        toString(dayOfMonth(ModifiedDate), '00')",
+				"    )",
+				"),",
+				"          AddressLine2 = iifNull(AddressLine2, 'N/A')) ~> derivedColumnModifiedDate",
+				"DimCity select(mapColumn(",
+				"          id_city = id,",
+				"          city",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> id2idcity",
+				"joinStateIds, id2idcity join(selectNewRows@City == id2idcity@city,",
+				"     joinType:'inner',",
+				"     broadcast: 'auto')~> joinCityIds",
+				"derivedColumnModifiedDate select(mapColumn(",
+				"          AddressID,",
+				"          AddressLine1,",
+				"          AddressLine2,",
+				"          PostalCode,",
+				"          ModifiedDateId,",
+				"          id_country,",
+				"          id_state,",
+				"          id_city",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> removeColumns",
+				"AddressTable, SourceFactAddresses join(AddressTable@AddressID == SourceFactAddresses@AddressID,",
+				"     joinType:'left',",
+				"     broadcast: 'auto')~> joinFactTable",
+				"joinFactTable filter(isNull(SourceFactAddresses@AddressID)) ~> filterJoinNULL",
+				"filterJoinNULL select(mapColumn(",
+				"          AddressID = AddressTable@AddressID,",
+				"          AddressLine1 = AddressTable@AddressLine1,",
+				"          AddressLine2 = AddressTable@AddressLine2,",
+				"          City,",
+				"          StateProvince,",
+				"          CountryRegion,",
+				"          PostalCode = AddressTable@PostalCode,",
+				"          rowguid,",
+				"          ModifiedDate",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectNewRows",
+				"removeColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink2Table"
+			]
+		}
+	}
+}

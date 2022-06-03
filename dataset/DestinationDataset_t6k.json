@@ -1,0 +1,17 @@
+{
+	"name": "DestinationDataset_t6k",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlDatabaseTraining1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "TTraining",
+			"table": "FactForecast"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

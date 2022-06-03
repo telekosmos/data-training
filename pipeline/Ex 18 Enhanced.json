@@ -1,0 +1,43 @@
+{
+	"name": "Ex 18 Enhanced",
+	"properties": {
+		"activities": [
+			{
+				"name": "dfJsonEventsTransform",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dfTransformMultiple",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"ParquetSink": {
+								"container": "sources",
+								"folder": "StagingEvents"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"folder": {
+			"name": "data flow pipes"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-06-03T08:47:19Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

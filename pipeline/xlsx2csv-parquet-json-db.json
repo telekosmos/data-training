@@ -1,0 +1,226 @@
+{
+	"name": "xlsx2csv-parquet-json-db",
+	"properties": {
+		"description": "one to rule them all",
+		"activities": [
+			{
+				"name": "xlsx2csv_pipe1",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CopyPipeline_xlsx2csv",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"SourceContainer": {
+							"value": "@pipeline().parameters.SourceContainer",
+							"type": "Expression"
+						},
+						"TargetContainer": {
+							"value": "@pipeline().parameters.TargetContainer",
+							"type": "Expression"
+						},
+						"SourcePrefix": {
+							"value": "@pipeline().parameters.SourcePrefix",
+							"type": "Expression"
+						},
+						"TargetPrefix": {
+							"value": "@pipeline().parameters.CsvPrefix",
+							"type": "Expression"
+						},
+						"SourceFilename": {
+							"value": "@pipeline().parameters.SourceFilename",
+							"type": "Expression"
+						},
+						"TargetFilename": {
+							"value": "@concat(pipeline().parameters.TargetFilename, '.', pipeline().parameters.CsvPrefix)",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "xlsx2json_pipe2",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "xlsx2csv_pipe1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CopyPipeline_xlsx2json",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"SourceContainer": {
+							"value": "@pipeline().parameters.SourceContainer",
+							"type": "Expression"
+						},
+						"SourcePrefix": {
+							"value": "@pipeline().parameters.SourcePrefix",
+							"type": "Expression"
+						},
+						"SourceFilename": {
+							"value": "@pipeline().parameters.SourceFilename",
+							"type": "Expression"
+						},
+						"TargetContainer": {
+							"value": "@pipeline().parameters.TargetContainer",
+							"type": "Expression"
+						},
+						"TargetPrefix": {
+							"value": "@pipeline().parameters.JsonPrefix",
+							"type": "Expression"
+						},
+						"TargetFilename": {
+							"value": "@pipeline().parameters.TargetFilename",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "xlsx2parquet_pipe3",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "xlsx2json_pipe2",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CopyPipeline_xlxs2parquet",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"SourceContainer": {
+							"value": "@pipeline().parameters.SourceContainer",
+							"type": "Expression"
+						},
+						"SourcePrefix": {
+							"value": "@pipeline().parameters.SourcePrefix",
+							"type": "Expression"
+						},
+						"SourceFilename": {
+							"value": "@pipeline().parameters.SourceFilename",
+							"type": "Expression"
+						},
+						"TargetContainer": {
+							"value": "@pipeline().parameters.TargetContainer",
+							"type": "Expression"
+						},
+						"TargetPrefix": {
+							"value": "@pipeline().parameters.ParquetPrefix",
+							"type": "Expression"
+						},
+						"TargetFilename": {
+							"value": "@pipeline().parameters.TargetFilename",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "xlsx2db",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "xlsx2parquet_pipe3",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "xlsx2db",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"SourceContainer": {
+							"value": "@pipeline().parameters.SourceContainer",
+							"type": "Expression"
+						},
+						"SourcePrefix": {
+							"value": "@pipeline().parameters.SourcePrefix",
+							"type": "Expression"
+						},
+						"SourceFilename": {
+							"value": "@pipeline().parameters.SourceFilename",
+							"type": "Expression"
+						},
+						"SchemaName": {
+							"value": "@pipeline().parameters.DbName",
+							"type": "Expression"
+						},
+						"TableName": {
+							"value": "@pipeline().parameters.DbTable",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"SourceContainer": {
+				"type": "string",
+				"defaultValue": "sources"
+			},
+			"SourcePrefix": {
+				"type": "string",
+				"defaultValue": "OriginalFiles"
+			},
+			"SourceFilename": {
+				"type": "string",
+				"defaultValue": "ForecastData.xlsx"
+			},
+			"TargetContainer": {
+				"type": "string",
+				"defaultValue": "targets"
+			},
+			"JsonPrefix": {
+				"type": "string",
+				"defaultValue": "json"
+			},
+			"CsvPrefix": {
+				"type": "string",
+				"defaultValue": "csv"
+			},
+			"ParquetPrefix": {
+				"type": "string",
+				"defaultValue": "parquet"
+			},
+			"TargetFilename": {
+				"type": "string",
+				"defaultValue": "DaForecast"
+			},
+			"DbName": {
+				"type": "string",
+				"defaultValue": "TTraining"
+			},
+			"DbTable": {
+				"type": "string",
+				"defaultValue": "Forecast"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-05-18T14:31:50Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

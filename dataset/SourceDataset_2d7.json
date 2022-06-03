@@ -1,0 +1,108 @@
+{
+	"name": "SourceDataset_2d7",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Filename": {
+				"type": "string"
+			},
+			"Container": {
+				"type": "string"
+			},
+			"Prefix": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Sheet1",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().Filename",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().Prefix",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().Container",
+					"type": "Expression"
+				}
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "ID",
+				"type": "String"
+			},
+			{
+				"name": "dt",
+				"type": "String"
+			},
+			{
+				"name": "pressure",
+				"type": "String"
+			},
+			{
+				"name": "humidity",
+				"type": "String"
+			},
+			{
+				"name": "dew_point",
+				"type": "String"
+			},
+			{
+				"name": "wind_speed",
+				"type": "String"
+			},
+			{
+				"name": "clouds",
+				"type": "String"
+			},
+			{
+				"name": "pop",
+				"type": "String"
+			},
+			{
+				"name": "uvi",
+				"type": "String"
+			},
+			{
+				"name": "temp_max",
+				"type": "String"
+			},
+			{
+				"name": "temp_min",
+				"type": "String"
+			},
+			{
+				"name": "rain_mm",
+				"type": "String"
+			},
+			{
+				"name": "snow_mm",
+				"type": "String"
+			},
+			{
+				"name": "prediction_date",
+				"type": "String"
+			},
+			{
+				"name": "forecast_made",
+				"type": "String"
+			},
+			{
+				"name": "SHOP",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

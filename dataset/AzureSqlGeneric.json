@@ -1,0 +1,13 @@
+{
+	"name": "AzureSqlGeneric",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlDatabaseTraining1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

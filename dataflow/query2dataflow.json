@@ -1,0 +1,212 @@
+{
+	"name": "query2dataflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "salesOrderDetail"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "salesOrderHeader"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "customer"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "joinSalesOrders"
+				},
+				{
+					"name": "joinCustomers"
+				},
+				{
+					"name": "derivedTransformedCols"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "selectFinalColumns"
+				},
+				{
+					"name": "splitOnDate"
+				},
+				{
+					"name": "split1"
+				},
+				{
+					"name": "filterEmailNotLike"
+				},
+				{
+					"name": "columnRequestOld"
+				},
+				{
+					"name": "columnRequestCurrent"
+				},
+				{
+					"name": "columnRequestNew"
+				},
+				{
+					"name": "unionRequests"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     sinkTableSchema as string,",
+				"     sinkTableName as string",
+				"}",
+				"source(output(",
+				"          SalesOrderID as integer,",
+				"          SalesOrderDetailID as integer,",
+				"          OrderQty as short,",
+				"          ProductID as integer,",
+				"          UnitPrice as decimal(19,4),",
+				"          UnitPriceDiscount as decimal(19,4),",
+				"          LineTotal as decimal(38,6),",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> salesOrderDetail",
+				"source(output(",
+				"          SalesOrderID as integer,",
+				"          RevisionNumber as integer,",
+				"          OrderDate as timestamp,",
+				"          DueDate as timestamp,",
+				"          ShipDate as timestamp,",
+				"          Status as integer,",
+				"          OnlineOrderFlag as boolean,",
+				"          SalesOrderNumber as string,",
+				"          PurchaseOrderNumber as string,",
+				"          AccountNumber as string,",
+				"          CustomerID as integer,",
+				"          ShipToAddressID as integer,",
+				"          BillToAddressID as integer,",
+				"          ShipMethod as string,",
+				"          CreditCardApprovalCode as string,",
+				"          SubTotal as decimal(19,4),",
+				"          TaxAmt as decimal(19,4),",
+				"          Freight as decimal(19,4),",
+				"          TotalDue as decimal(19,4),",
+				"          Comment as string,",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> salesOrderHeader",
+				"source(output(",
+				"          CustomerID as integer,",
+				"          NameStyle as boolean,",
+				"          Title as string,",
+				"          FirstName as string,",
+				"          MiddleName as string,",
+				"          LastName as string,",
+				"          Suffix as string,",
+				"          CompanyName as string,",
+				"          SalesPerson as string,",
+				"          EmailAddress as string,",
+				"          Phone as string,",
+				"          PasswordHash as string,",
+				"          PasswordSalt as string,",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> customer",
+				"salesOrderDetail, salesOrderHeader join(salesOrderDetail@SalesOrderID == salesOrderHeader@SalesOrderID,",
+				"     joinType:'inner',",
+				"     broadcast: 'auto')~> joinSalesOrders",
+				"joinSalesOrders, customer join(salesOrderHeader@CustomerID == customer@CustomerID,",
+				"     joinType:'left',",
+				"     broadcast: 'auto')~> joinCustomers",
+				"sort1 derive(PurchaseType = concat(left(SalesOrderNumber, 2), left(PurchaseOrderNumber, 2)),",
+				"          TotalCost = OrderQty*UnitPrice,",
+				"          Customer = Title + FirstName + LastName,",
+				"          FirstPart = left(AccountNumber, instr(AccountNumber, '-')-1),",
+				"          SecondPart = split(AccountNumber, '-')[2],",
+				"          ThirdPart = split(AccountNumber, '-')[3],",
+				"          PhoneLocal = case(rlike(Phone, `(.*)\\)(.*)`), 'NOT LOCAL', 'LOCAL'),",
+				"          DateAttribute = case(:customerModifiedDate_yyyyMMdd <= '20051201', 'BeforeStart', ",
+				"    between(:customerModifiedDate_yyyyMMdd, '20051202', '20061201'), 'JustStarted',",
+				"    between(:customerModifiedDate_yyyyMMdd, '20061202', '20070601'), 'OnGoingBusiness',",
+				"    between(:customerModifiedDate_yyyyMMdd, '20070602', '20080601'), 'EndOfBusiness', 'ErrorDate'",
+				"),",
+				"          DateId = toString(salesOrderDetail@ModifiedDate, 'yyyyMMdd'),",
+				"          TimeId = toString(customer@ModifiedDate, 'HHmm'),",
+				"          customerModifiedDate_yyyyMMdd := toString(customer@ModifiedDate, 'yyyyMMdd')) ~> derivedTransformedCols",
+				"filterEmailNotLike sort(asc(SalesOrderDetailID, true)) ~> sort1",
+				"derivedTransformedCols select(mapColumn(",
+				"          SalesOrderID = salesOrderHeader@SalesOrderID,",
+				"          SalesOrderNumber,",
+				"          PurchaseOrderNumber,",
+				"          PurchaseType,",
+				"          ShipMethod,",
+				"          OrderQty,",
+				"          UnitPrice,",
+				"          TotalCost,",
+				"          Customer,",
+				"          AccountNumber,",
+				"          FirstPart,",
+				"          SecondPart,",
+				"          ThirdPart,",
+				"          PhoneLocal,",
+				"          DateAttribute,",
+				"          DateId,",
+				"          TimeId",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectFinalColumns",
+				"selectFinalColumns split(SalesOrderID <= 71816,",
+				"     disjoint: false) ~> splitOnDate@(Old, Others)",
+				"splitOnDate@Others split(between(SalesOrderID, 71831, 71897),",
+				"     SalesOrderID > 71897,",
+				"     disjoint: false) ~> split1@(Current, New)",
+				"joinCustomers filter(!rlike(EmailAddress, `(.*)inda(.*)`)) ~> filterEmailNotLike",
+				"splitOnDate@Old derive(Request = 'Old') ~> columnRequestOld",
+				"split1@Current derive(Request = 'Current') ~> columnRequestCurrent",
+				"split1@New derive(Request = 'New') ~> columnRequestNew",
+				"columnRequestOld, columnRequestCurrent, columnRequestNew union(byName: true)~> unionRequests",
+				"unionRequests sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     truncate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}

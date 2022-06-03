@@ -1,0 +1,51 @@
+{
+	"name": "Ex15 - DimTables - Bad",
+	"properties": {
+		"activities": [
+			{
+				"name": "Dimensional tables",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dfDimTables",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"sinkDimState": {
+								"Schema": "TTraining",
+								"Table": "DimState"
+							},
+							"sinkDimCity": {
+								"Schema": "TTraining",
+								"Table": "DimCity"
+							},
+							"sinkDimCountry": {
+								"Schema": "TTraining",
+								"Table": "DimCountry"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"folder": {
+			"name": "data flow pipes"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-05-26T13:45:10Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

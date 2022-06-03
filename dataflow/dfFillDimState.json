@@ -1,0 +1,100 @@
+{
+	"name": "dfFillDimState",
+	"properties": {
+		"description": "Dim table Incremental load",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTableAddress",
+						"type": "DatasetReference"
+					},
+					"name": "sourceAddress"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sourceDimState"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlGenericTable",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "leftJoinOnState"
+				},
+				{
+					"name": "filterStateNULL"
+				},
+				{
+					"name": "aggState"
+				},
+				{
+					"name": "selectJustState"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     schema as string",
+				"}",
+				"source(output(",
+				"          AddressID as integer,",
+				"          AddressLine1 as string,",
+				"          AddressLine2 as string,",
+				"          City as string,",
+				"          StateProvince as string,",
+				"          CountryRegion as string,",
+				"          PostalCode as string,",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourceAddress",
+				"source(output(",
+				"          id as integer,",
+				"          state as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sourceDimState",
+				"sourceAddress, sourceDimState join(StateProvince == state,",
+				"     joinType:'left',",
+				"     broadcast: 'auto')~> leftJoinOnState",
+				"leftJoinOnState filter(isNull(state)) ~> filterStateNULL",
+				"filterStateNULL aggregate(groupBy(StateProvince),",
+				"     counter = count()) ~> aggState",
+				"aggState select(mapColumn(",
+				"          StateProvince",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectJustState",
+				"selectJustState sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          state = StateProvince",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
