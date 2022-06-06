@@ -1,7 +1,7 @@
 {
-	"name": "Move from OriginalFiles to Folder",
+	"name": "Ex 10 - Move from OriginalFiles to Folder",
 	"properties": {
-		"description": "Move the files in OriginalFiles to a folder in this case called Exercise10.",
+		"description": "Move some files in OriginalFiles to a folder in this case called Exercise10.",
 		"activities": [
 			{
 				"name": "Get Metadata for file list",

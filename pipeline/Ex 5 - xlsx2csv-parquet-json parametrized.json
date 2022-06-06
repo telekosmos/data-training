@@ -1,5 +1,5 @@
 {
-	"name": "Ex5 - xlsx2csv-parquet-json parametrized",
+	"name": "Ex 5 - xlsx2csv-parquet-json parametrized",
 	"properties": {
 		"description": "one to rule them all",
 		"activities": [
