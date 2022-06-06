@@ -1,7 +1,7 @@
 {
-	"name": "Db2Files by format",
+	"name": "Ex 8 - Db2Files by format using loops",
 	"properties": {
-		"description": "Copy database tables content to files by format",
+		"description": "Copy database tables content to files by format by looping on them",
 		"activities": [
 			{
 				"name": "LookupDbByFormat",

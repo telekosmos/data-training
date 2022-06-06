@@ -9,7 +9,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "Move parquet files by entity",
+						"referenceName": "Ex 12 - Move parquet files by entity",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true
@@ -22,7 +22,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "Move parquet files by entity",
+						"referenceName": "Ex 12 - Move parquet files by entity",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,
@@ -38,7 +38,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "Move parquet files by entity",
+						"referenceName": "Ex 12 - Move parquet files by entity",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true,

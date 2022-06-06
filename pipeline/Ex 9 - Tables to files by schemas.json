@@ -1,5 +1,5 @@
 {
-	"name": "Tables to files by schemas",
+	"name": "Ex 9 - Tables to files by schemas",
 	"properties": {
 		"description": "Dump all tables in schemas to files",
 		"activities": [

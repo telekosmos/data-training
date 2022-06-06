@@ -1,6 +1,7 @@
 {
-	"name": "Move parquet files by entity",
+	"name": "Ex 12 - Move parquet files by entity",
 	"properties": {
+		"description": "Clone of Ex 11 adding Traffic files and parametrizing using entity (choosing Product, Traffic)",
 		"activities": [
 			{
 				"name": "Get Metadata for file list",

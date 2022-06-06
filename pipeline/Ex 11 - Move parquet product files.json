@@ -1,6 +1,7 @@
 {
-	"name": "Move parquet product files",
+	"name": "Ex 11 - Move parquet product files",
 	"properties": {
+		"description": "Create a process that moves all files keeping them in parquet format. Each file should be placed in a folder according to their year and month on their name. The final location structure should follow the following structure inside “Sources” container.\n\n“GoogleAnalytics/Product/{YYYYMM}/Files.parquet",
 		"activities": [
 			{
 				"name": "Get Metadata for file list",

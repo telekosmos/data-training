@@ -1,6 +1,7 @@
 {
-	"name": "Ex 8 - Csv to DB  -and thrash- using SP",
+	"name": "Ex 6 - Csv to DB  -and thrash- using SP",
 	"properties": {
+		"description": "Also Ex 7 for the copy to thrash",
 		"activities": [
 			{
 				"name": "Copy from csv to thrash",
