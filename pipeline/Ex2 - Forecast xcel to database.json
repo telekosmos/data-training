@@ -1,7 +1,7 @@
 {
-	"name": "Copy_xlsx2db_t6k",
+	"name": "Ex2 - Forecast xcel to database",
 	"properties": {
-		"description": "xlsx2db",
+		"description": "Create a pipeline that moves the data stored in the ForecastData.xlsx file to a new table in the database called FactForecast. -> xlsx2db",
 		"activities": [
 			{
 				"name": "Copy_xlsx2db_t6k",

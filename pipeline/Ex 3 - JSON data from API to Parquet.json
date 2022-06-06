@@ -1,6 +1,7 @@
 {
-	"name": "Copy_jsonrest2parquet",
+	"name": "Ex 3 - JSON data from API to Parquet",
 	"properties": {
+		"description": "Create a pipeline that extracts data from the following API and stores in a folder in the data lake",
 		"activities": [
 			{
 				"name": "Copy_rest2parquet",
@@ -147,7 +148,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "SourceDataset_7wj",
+						"referenceName": "APIRequest",
 						"type": "DatasetReference"
 					}
 				],
