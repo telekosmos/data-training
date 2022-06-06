@@ -1,9 +1,11 @@
 {
-	"name": "Temp pipeline",
+	"name": "Flatten json string Try",
 	"properties": {
+		"description": "Try get an array of arrays out of a string containing that structure (like '[[\"first\", \"row\"], [\"second\", \"row\"]]'.",
 		"activities": [
 			{
-				"name": "Data flow1",
+				"name": "JSON string flatten",
+				"description": "The JSON string is actually an array of arrays",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
